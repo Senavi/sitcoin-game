@@ -65,10 +65,15 @@ function getQueryParams() {
 document.addEventListener("DOMContentLoaded", () => {
     let params = getQueryParams();
     if (params.username) {
-        document.getElementById("username").innerHTML = params.username + `<span class="user-status" id="user-status">Junior</span>`;
+        let username = params.username;
+        if (username.length > 7) {
+            username = username.substring(0, 7) + "...";
+        }
+        document.getElementById("username").innerText = username;
         console.log(params.username);
     }
 });
+
 
 
 upgradeButton.addEventListener('click', () => {
