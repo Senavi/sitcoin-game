@@ -1,4 +1,4 @@
-const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com/";
+const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com"; // Ensure this is correct and without trailing slash
 
 let coinCount = 0;
 let coinsPerTap = 1;
@@ -7,12 +7,12 @@ let automateCost = 1000;
 let isAutomated = false;
 let boostMultiplier = 1;
 let boostInterval = 1000;
-let defaultAutomationInterval = 1000;
+let defaultAutomationInterval = 1000; // Default interval for automation
 let automationIntervalId;
 let boostActive = false;
 let maxTaps = 2500;
 let currentTaps = maxTaps;
-let tapRestoreRate = 5;
+let tapRestoreRate = 5; // 5 taps per second
 
 const coinCountElement = document.getElementById('coin-count');
 const coinElement = document.getElementById('coin');
@@ -42,11 +42,12 @@ let selectedBoostOption = null;
 let boostTimeout;
 let boostEndTimeInterval;
 
+// Example code to read query parameters in your game (e.g., script.js)
 function getQueryParams() {
     let params = {};
     window.location.search.substring(1).split("&").forEach(pair => {
         let [key, value] = pair.split("=");
-        params[key] = decodeURIComponent(value);
+        params[key] = value;
     });
     return params;
 }
@@ -103,6 +104,7 @@ coinElement.addEventListener('click', (e) => {
         const y = e.clientY - rect.top;
         addCoins(coinsPerTap * boostMultiplier, x, y);
         createParticles(10);
+        // Save stats to the server
         const params = getQueryParams();
         saveUserStats(params.telegramId);
     }
@@ -247,7 +249,7 @@ function createFallingStar() {
     const star = document.createElement('div');
     star.classList.add('star');
     star.style.left = `${Math.random() * 100}%`;
-    star.style.top = `-${Math.random() * 20}px`;
+    star.style.top = `-${Math.random() * 20}px`; // Ensure stars start from above the screen
     document.querySelector('.game-container').appendChild(star);
 
     setTimeout(() => {
