@@ -65,7 +65,7 @@ function getQueryParams() {
 document.addEventListener("DOMContentLoaded", () => {
     let params = getQueryParams();
     if (params.username) {
-        document.getElementById("username").innerText = params.username;
+        document.getElementById("username").innerHTML = params.username + `<span class="user-status" id="user-status">Junior</span>`;
         console.log(params.username);
     }
 });
