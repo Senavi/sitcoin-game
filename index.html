@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrecoin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="user-profile">
+            <img id="user-image" src="assets/profile.webp" alt="User Image" class="user-image">
+            <span class="username">Nazar <span class="user-status" id="user-status">Junior</span></span>
+            <div class="coins-current-per-tap">
+                <span id="coins-per-tap">1 per tap</span><button id="upgrade-button">+</button>
+            </div>
+        </div>
+        <div class="counter"><img class="coin-ico" src="assets/sitcoin.png" alt="Sitcoin"><span id="coin-count">0</span></div>
+        <div class="coin" id="coin"></div>
+        <div class="bottom-part">
+            <div class="tap-counter">
+                <img class="tap-ico" src="assets/sitcoin.png" alt="Tap Icon">
+                <span id="tap-count">2500/2500</span>
+            </div>
+            <div class="boosters">
+                <button id="automate-button">Autoclicker</button>
+                <button id="boost-button">Boost</button>
+            </div>
+            <div class="nav-bar">
+                <button class="nav-button selected" id="home-button">Home</button>
+                <button class="nav-button" id="tasks-button">Tasks</button>
+            </div>
+        </div>
+        
+        <div class="modal" id="automation-modal">
+            <div class="modal-content">
+                <p>Buy autoclicker for 1000 coins?</p>
+                <button class="primary" id="confirm-automation">Confirm</button>
+                <button class="secondary" id="cancel-automation">Cancel</button>
+            </div>
+        </div>
+
+        <div class="modal" id="tasks-modal">
+            <div class="modal-content">
+                <p>Coming soon</p>
+                <button class="secondary" id="close-tasks">Close</button>
+            </div>
+        </div>
+
+        <div class="modal" id="boost-modal">
+            <div class="modal-content">
+                <div class="boost-option" id="boost-option-1">
+                    <p>Plan 1: x2 boost, 0.4s interval for 10 mins (Free, every 2 hours)</p>
+                </div>
+                <div class="boost-option" id="boost-option-2">
+                    <p>Plan 2: x2 boost, 0.2s interval for 30 mins (5000 coins, every 5 hours)</p>
+                </div>
+                <div class="boost-option" id="boost-option-3">
+                    <p>Plan 3: x4 boost, 0.4s interval for 60 mins (20000 coins, once per day)</p>
+                </div>
+                <button class="primary" id="confirm-boost" disabled>Confirm</button>
+                <button class="secondary" id="cancel-boost">Cancel</button>
+            </div>
+        </div>
+
+        <div class="modal" id="boost-timer-modal">
+            <div class="modal-content">
+                <p>Boost active until: <span id="boost-end-time"></span></p>
+                <p>Next free boost available in: <span id="next-free-boost"></span></p>
+                <button id="close-boost-timer">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
