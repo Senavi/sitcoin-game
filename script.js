@@ -52,16 +52,6 @@ coinElement.addEventListener('click', (e) => {
     }
 });
 
-// Example code to read query parameters in your game (e.g., script.js)
-function getQueryParams() {
-    let params = {};
-    window.location.search.substring(1).split("&").forEach(pair => {
-        let [key, value] = pair.split("=");
-        params[key] = value;
-    });
-    return params;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     let params = getQueryParams();
     if (params.username) {
@@ -73,6 +63,15 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(params.username);
     }
 });
+
+function getQueryParams() {
+    let params = {};
+    window.location.search.substring(1).split("&").forEach(pair => {
+        let [key, value] = pair.split("=");
+        params[key] = value;
+    });
+    return params;
+}
 
 
 
