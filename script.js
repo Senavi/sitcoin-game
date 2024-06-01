@@ -40,18 +40,6 @@ let selectedBoostOption = null;
 let boostTimeout;
 let boostEndTimeInterval;
 
-coinElement.addEventListener('click', (e) => {
-    if (currentTaps >= coinsPerTap * boostMultiplier) {
-        currentTaps -= coinsPerTap * boostMultiplier;
-        updateTapCount();
-        const rect = coinElement.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        addCoins(coinsPerTap * boostMultiplier, x, y);
-        createParticles(10);
-    }
-});
-
 // Example code to read query parameters in your game (e.g., script.js)
 function getQueryParams() {
     let params = {};
@@ -69,7 +57,7 @@ function loadImage(url, callback, fallback) {
     img.src = url;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     let params = getQueryParams();
     if (params.username) {
         let username = params.username;
@@ -84,6 +72,40 @@ document.addEventListener("DOMContentLoaded", () => {
             () => console.log('Profile image failed to load')
         );
     }
+    if (params.telegramId) {
+        const response = await fetch(`/user-stats/${params.telegramId}`);
+        const stats = await response.json();
+        if (stats) {
+            coinCount = stats.coinCount;
+            coinsPerTap = stats.coinsPerTap;
+            userStatusElement.textContent = stats.status;
+            coinCountElement.textContent = coinCount;
+            coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
+        }
+    }
+});
+
+function saveUserStats(telegramId) {
+    fetch(`/user-stats/${telegramId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coinCount, coinsPerTap, status: userStatusElement.textContent })
+    });
+}
+
+coinElement.addEventListener('click', (e) => {
+    if (currentTaps >= coinsPerTap * boostMultiplier) {
+        currentTaps -= coinsPerTap * boostMultiplier;
+        updateTapCount();
+        const rect = coinElement.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        addCoins(coinsPerTap * boostMultiplier, x, y);
+        createParticles(10);
+        // Save stats to the server
+        const params = getQueryParams();
+        saveUserStats(params.telegramId);
+    }
 });
 
 upgradeButton.addEventListener('click', () => {
@@ -93,6 +115,8 @@ upgradeButton.addEventListener('click', () => {
         upgradeCost *= 2;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
+        const params = getQueryParams();
+        saveUserStats(params.telegramId);
     }
 });
 
@@ -109,6 +133,8 @@ confirmAutomation.addEventListener('click', () => {
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
         startAutomation(defaultAutomationInterval);
+        const params = getQueryParams();
+        saveUserStats(params.telegramId);
     }
     automationModal.style.display = 'none';
 });
@@ -136,6 +162,8 @@ boostOptions.forEach(option => {
 confirmBoost.addEventListener('click', () => {
     if (selectedBoostOption) {
         applyBoost(selectedBoostOption);
+        const params = getQueryParams();
+        saveUserStats(params.telegramId);
     }
     boostModal.style.display = 'none';
 });
@@ -191,6 +219,8 @@ function startAutomation(interval) {
     automationIntervalId = setInterval(() => {
         if (isAutomated || boostActive) {
             addCoins(coinsPerTap * boostMultiplier);
+            const params = getQueryParams();
+            saveUserStats(params.telegramId);
         }
     }, interval);
 }
@@ -289,6 +319,8 @@ function applyBoost(optionId) {
         coinCount -= cost;
         coinCountElement.textContent = coinCount;
         startBoost(boostDuration, nextAvailable);
+        const params = getQueryParams();
+        saveUserStats(params.telegramId);
     }
 }
 
