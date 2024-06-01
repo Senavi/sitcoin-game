@@ -66,8 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let params = getQueryParams();
     if (params.username) {
         document.getElementById("username").innerText = params.username;
+        console.log(params.username);
     }
 });
+
 
 upgradeButton.addEventListener('click', () => {
     if (coinCount >= upgradeCost) {
