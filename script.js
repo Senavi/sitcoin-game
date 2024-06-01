@@ -52,18 +52,7 @@ coinElement.addEventListener('click', (e) => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    let params = getQueryParams();
-    if (params.username) {
-        let username = params.username;
-        if (username.length > 7) {
-            username = username.substring(0, 7) + "...";
-        }
-        document.getElementById("username").innerText = username;
-        console.log(params.username);
-    }
-});
-
+// Example code to read query parameters in your game (e.g., script.js)
 function getQueryParams() {
     let params = {};
     window.location.search.substring(1).split("&").forEach(pair => {
@@ -73,6 +62,19 @@ function getQueryParams() {
     return params;
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    let params = getQueryParams();
+    if (params.username) {
+        let username = params.username;
+        if (username.length > 7) {
+            username = username.substring(0, 7) + "...";
+        }
+        document.getElementById("username").innerText = username;
+    }
+    if (params.profileImageUrl) {
+        document.getElementById("user-image").src = params.profileImageUrl;
+    }
+});
 
 
 upgradeButton.addEventListener('click', () => {
