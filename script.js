@@ -62,6 +62,13 @@ function getQueryParams() {
     return params;
 }
 
+function loadImage(url, callback, fallback) {
+    let img = new Image();
+    img.onload = () => callback(url);
+    img.onerror = () => fallback();
+    img.src = url;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     let params = getQueryParams();
     if (params.username) {
@@ -72,10 +79,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("username").innerText = username;
     }
     if (params.profileImageUrl) {
-        document.getElementById("user-image").src = params.profileImageUrl;
+        loadImage(params.profileImageUrl,
+            (url) => document.getElementById("user-image").src = url,
+            () => console.log('Profile image failed to load')
+        );
     }
 });
-
 
 upgradeButton.addEventListener('click', () => {
     if (coinCount >= upgradeCost) {
