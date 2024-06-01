@@ -1,3 +1,5 @@
+const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com/"; // Replace with your actual Heroku app URL
+
 let coinCount = 0;
 let coinsPerTap = 1;
 let upgradeCost = 2;
@@ -73,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
     }
     if (params.telegramId) {
-        const response = await fetch(`/user-stats/${params.telegramId}`);
+        const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
         const stats = await response.json();
         if (stats) {
             coinCount = stats.coinCount;
@@ -86,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function saveUserStats(telegramId) {
-    fetch(`/user-stats/${telegramId}`, {
+    fetch(`${baseURL}/user-stats/${telegramId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ coinCount, coinsPerTap, status: userStatusElement.textContent })
