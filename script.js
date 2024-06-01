@@ -1,4 +1,4 @@
-const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com/"; // Replace with your actual Heroku app URL
+const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com"; // Ensure this is correct and without trailing slash
 
 let coinCount = 0;
 let coinsPerTap = 1;
