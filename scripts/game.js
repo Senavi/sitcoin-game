@@ -408,11 +408,14 @@ async function loadLeaderboard() {
         const playerElement = document.createElement('div');
         playerElement.classList.add('leaderboard-item');
         playerElement.innerHTML = `
-            <span>${index + 1}</span>
+            <div class="left-col">
+            <p class="rank">${index + 1}</p>
             <img src="assets/profile.webp" alt="Profile Image">
-            <span>${player.username}</span>
-            <span>${player.coinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
-        `;
+            <p class="leader-username">${player.username}</p>
+            </div>
+            <div class="right-col">
+            <span class="score">${player.coinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
+            </div>`;
         if (index < 3) {
             playerElement.classList.add('top-three');
         }

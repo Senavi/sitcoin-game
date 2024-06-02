@@ -353,6 +353,7 @@ p {
 
 .leaderboard-list {
     width: 100%;
+    overflow-y: scroll;
 }
 
 .leaderboard-item {
@@ -361,26 +362,33 @@ p {
     align-items: center;
     background-color: #000;
     border: 1px solid #888;
-    padding: 5px;
-    margin-bottom: 10px;
+    padding: 8px 5px;
+    margin-bottom: 5px;
 }
 
-.leaderboard-item img {
+.left-col{
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+.leaderboard-item .left-col img {
     width: 30px;
     height: 30px;
     border-radius: 50%;
     margin-right: 10px;
 }
 
-.leaderboard-item .rank {
+.leaderboard-item .left-col .rank {
     font-size: 16px;
     color: #00ff00;
     margin-right: 5px;
+    margin-top: 5px;
 }
 
-.leaderboard-item .username {
+.leaderboard-item .left-col .leader-username {
     font-size: 14px;
-    flex-grow: 1;
+    margin-top: 5px;
 }
 
 .leaderboard-item .score {
@@ -395,8 +403,13 @@ p {
 }
 
 /* Top 3 special styling */
-.leaderboard-item.top-1,
-.leaderboard-item.top-2,
-.leaderboard-item.top-3 {
-    border-color: #00ff00;
+.leaderboard-item.top-three,
+.leaderboard-item.top-three,
+.leaderboard-item.top-three {
+    border: none;
+    background-color: #00cc00;
+}
+
+.leaderboard-item.top-three .left-col .rank{
+    color: white;
 }
