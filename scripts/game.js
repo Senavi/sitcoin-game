@@ -22,14 +22,12 @@ const coinsPerTapElement = document.getElementById('coins-per-tap');
 const upgradeButton = document.getElementById('upgrade-button');
 const automateButton = document.getElementById('automate-button');
 const boostButton = document.getElementById('boost-button');
-const automationModal = document.getElementById('automation-modal');
 const confirmAutomation = document.getElementById('confirm-automation');
 const cancelAutomation = document.getElementById('cancel-automation');
 const userStatusElement = document.getElementById('user-status');
 const homeButton = document.getElementById('home-button');
-const tasksButton = document.getElementById('tasks-button');
-const tasksModal = document.getElementById('tasks-modal');
-const closeTasks = document.getElementById('close-tasks');
+const leaderboardButton = document.getElementById('leaderboard-button');
+const backToHomeButton = document.getElementById('back-to-home-button');
 const boostModal = document.getElementById('boost-modal');
 const confirmBoost = document.getElementById('confirm-boost');
 const cancelBoost = document.getElementById('cancel-boost');
@@ -39,6 +37,8 @@ const boostEndTime = document.getElementById('boost-end-time');
 const nextFreeBoost = document.getElementById('next-free-boost');
 const closeBoostTimer = document.getElementById('close-boost-timer');
 const tapCountElement = document.getElementById('tap-count');
+const homeView = document.getElementById('home-view');
+const leaderboardView = document.getElementById('leaderboard-view');
 
 let selectedBoostOption = null;
 let boostTimeout;
@@ -88,7 +88,7 @@ coinElement.addEventListener('click', (e) => {
         addCoins(coinsPerTap * boostMultiplier, x, y);
         createParticles(10);
         // Save stats to the server
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
 });
 
@@ -99,13 +99,13 @@ upgradeButton.addEventListener('click', () => {
         upgradeCost *= 2;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
 });
 
 automateButton.addEventListener('click', () => {
     confirmAutomation.disabled = coinCount < automateCost;
-    automationModal.style.display = 'flex';
+    document.getElementById('automation-modal').style.display = 'flex';
 });
 
 confirmAutomation.addEventListener('click', () => {
@@ -116,13 +116,13 @@ confirmAutomation.addEventListener('click', () => {
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
         startAutomation(defaultAutomationInterval);
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
-    automationModal.style.display = 'none';
+    document.getElementById('automation-modal').style.display = 'none';
 });
 
 cancelAutomation.addEventListener('click', () => {
-    automationModal.style.display = 'none';
+    document.getElementById('automation-modal').style.display = 'none';
 });
 
 boostButton.addEventListener('click', () => {
@@ -144,7 +144,7 @@ boostOptions.forEach(option => {
 confirmBoost.addEventListener('click', () => {
     if (selectedBoostOption) {
         applyBoost(selectedBoostOption);
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
     boostModal.style.display = 'none';
 });
@@ -154,20 +154,18 @@ cancelBoost.addEventListener('click', () => {
 });
 
 homeButton.addEventListener('click', () => {
+    homeView.style.display = 'flex';
+    leaderboardView.style.display = 'none';
     homeButton.classList.add('selected');
-    tasksButton.classList.remove('selected');
+    leaderboardButton.classList.remove('selected');
 });
 
-tasksButton.addEventListener('click', () => {
-    tasksButton.classList.add('selected');
+leaderboardButton.addEventListener('click', () => {
+    homeView.style.display = 'none';
+    leaderboardView.style.display = 'flex';
+    leaderboardButton.classList.add('selected');
     homeButton.classList.remove('selected');
-    tasksModal.style.display = 'flex';
-});
-
-closeTasks.addEventListener('click', () => {
-    tasksModal.style.display = 'none';
-    homeButton.classList.add('selected');
-    tasksButton.classList.remove('selected');
+    loadLeaderboard();
 });
 
 closeBoostTimer.addEventListener('click', () => {
@@ -200,7 +198,7 @@ function startAutomation(interval) {
     automationIntervalId = setInterval(() => {
         if (isAutomated || boostActive) {
             addCoins(coinsPerTap * boostMultiplier);
-            saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+            saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
         }
     }, interval);
 }
@@ -299,7 +297,7 @@ function applyBoost(optionId) {
         coinCount -= cost;
         coinCountElement.textContent = coinCount;
         startBoost(boostDuration, optionId, false);
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
 }
 
@@ -325,7 +323,7 @@ function startBoost(duration, type, isResuming = false) {
         } else {
             clearInterval(automationIntervalId);
         }
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }, duration);
 
     boostEndTime.textContent = new Date(endTime).toLocaleTimeString();
@@ -337,7 +335,7 @@ function startBoost(duration, type, isResuming = false) {
     }, 1000);
 
     startAutomation(boostInterval);
-    saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+    saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
 }
 
 function updateBoostButton() {
@@ -391,3 +389,33 @@ setInterval(() => {
 }, 1000);
 
 setInterval(createFallingStar, 200);
+
+function loadLeaderboard() {
+    const leaderboardList = document.querySelector('.leaderboard-list');
+    leaderboardList.innerHTML = ''; // Clear previous content
+
+    // Simulate loading leaderboard data (this should be replaced with actual data fetching)
+    const leaderboardData = [
+        { rank: 1, username: 'Player1', score: 12345 },
+        { rank: 2, username: 'Player2', score: 11234 },
+        { rank: 3, username: 'Player3', score: 10987 },
+        // Add more dummy data here
+    ];
+
+    leaderboardData.forEach(player => {
+        const playerElement = document.createElement('div');
+        playerElement.classList.add('leaderboard-item');
+        if (player.rank === 1) playerElement.classList.add('top-1');
+        if (player.rank === 2) playerElement.classList.add('top-2');
+        if (player.rank === 3) playerElement.classList.add('top-3');
+
+        playerElement.innerHTML = `
+            <div class="rank">${player.rank}</div>
+            <img src="assets/profile.webp" alt="User Image">
+            <div class="username lead-user">${player.username}</div>
+            <div class="score">${player.score} <img src="assets/sitcoin.png" alt="Coin"></div>
+        `;
+
+        leaderboardList.appendChild(playerElement);
+    });
+}

@@ -64,8 +64,17 @@ body {
     margin-left: 10px;
 }
 
+.view {
+    max-width: 343px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
 .counter {
-    margin-top: 20px;
     font-size: 16px;
     display: flex;
     justify-content: center;
@@ -320,4 +329,74 @@ p {
     border-radius: 50%;
     animation: fallingStars 10s linear infinite;
     z-index: 0;
+}
+
+/* Leaderboard styles */
+.leaderboard {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lead-user{
+    margin-bottom: 0;
+    font-size: 12px; !important;
+}
+
+
+.leaderboard h2 {
+    color: #ffffff;
+    margin: 40px 0;
+}
+
+.leaderboard-list {
+    width: 100%;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #000;
+    border: 1px solid #888;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.leaderboard-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.leaderboard-item .rank {
+    font-size: 16px;
+    color: #00ff00;
+    margin-right: 5px;
+}
+
+.leaderboard-item .username {
+    font-size: 14px;
+    flex-grow: 1;
+}
+
+.leaderboard-item .score {
+    display: flex;
+    align-items: center;
+}
+
+.leaderboard-item .score img {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+}
+
+/* Top 3 special styling */
+.leaderboard-item.top-1,
+.leaderboard-item.top-2,
+.leaderboard-item.top-3 {
+    border-color: #00ff00;
 }

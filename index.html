@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrecoin</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -24,23 +24,32 @@
             <span id="coins-per-tap">1 per tap</span><button id="upgrade-button">+</button>
         </div>
     </div>
-    <div class="counter"><img class="coin-ico" src="assets/sitcoin.png" alt="Sitcoin"><span id="coin-count">0</span></div>
-    <div class="coin" id="coin"></div>
-    <div class="bottom-part">
-        <div class="tap-counter">
-            <img class="tap-ico" src="assets/sitcoin.png" alt="Tap Icon">
-            <span id="tap-count">2500/2500</span>
-        </div>
-        <div class="boosters">
-            <button id="automate-button">Autoclicker</button>
-            <button id="boost-button">Boost</button>
-        </div>
-        <div class="nav-bar">
-            <button class="nav-button selected" id="home-button">Home</button>
-            <button class="nav-button" id="tasks-button">Tasks</button>
+    <div class="view" id="home-view">
+        <div class="counter"><img class="coin-ico" src="assets/sitcoin.png" alt="Sitcoin"><span id="coin-count">0</span></div>
+        <div class="coin" id="coin"></div>
+        <div class="bottom-part">
+            <div class="tap-counter">
+                <img class="tap-ico" src="assets/sitcoin.png" alt="Tap Icon">
+                <span id="tap-count">2500/2500</span>
+            </div>
+            <div class="boosters">
+                <button id="automate-button">Autoclicker</button>
+                <button id="boost-button">Boost</button>
+            </div>
         </div>
     </div>
-
+    <div class="view" id="leaderboard-view" style="display: none;">
+        <div class="leaderboard">
+            <h2>Leaderboard</h2>
+            <div class="leaderboard-list">
+                <!-- Leaderboard content will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+    <div class="nav-bar">
+        <button class="nav-button selected" id="home-button">Home</button>
+        <button class="nav-button" id="leaderboard-button">Leaderboard</button>
+    </div>
     <div class="modal" id="automation-modal">
         <div class="modal-content">
             <p>Buy autoclicker for 1000 coins?</p>
@@ -48,14 +57,12 @@
             <button class="secondary" id="cancel-automation">Cancel</button>
         </div>
     </div>
-
     <div class="modal" id="tasks-modal">
         <div class="modal-content">
             <p>Coming soon</p>
             <button class="secondary" id="close-tasks">Close</button>
         </div>
     </div>
-
     <div class="modal" id="boost-modal">
         <div class="modal-content">
             <div class="boost-option" id="boost-option-1">
@@ -71,7 +78,6 @@
             <button class="secondary" id="cancel-boost">Cancel</button>
         </div>
     </div>
-
     <div class="modal" id="boost-timer-modal">
         <div class="modal-content">
             <p>Boost active until: <span id="boost-end-time"></span></p>
@@ -80,9 +86,9 @@
         </div>
     </div>
 </div>
-<script type="module" src="params.js"></script>
-<script type="module" src="user.js"></script>
-<script type="module" src="game.js"></script>
+<script type="module" src="scripts/params.js"></script>
+<script type="module" src="scripts/user.js"></script>
+<script type="module" src="scripts/game.js"></script>
 </body>
 
 </html>
