@@ -2,7 +2,7 @@
 
 import { params } from './params.js';
 
-const baseURL = "http://localhost:5000"; // Ensure this is correct and without trailing slash
+const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com/"; // Ensure this is correct and without trailing slash
 
 async function fetchUserStats() {
     if (params.telegramId) {
