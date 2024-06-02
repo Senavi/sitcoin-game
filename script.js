@@ -88,12 +88,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function saveUserStats(telegramId) {
-    fetch(`${baseURL}/user-stats/${telegramId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ coinCount, coinsPerTap, status: userStatusElement.textContent })
+    navigator.geolocation.getCurrentPosition((position) => {
+        fetch(`${baseURL}/user-stats/${telegramId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                coinCount,
+                coinsPerTap,
+                status: userStatusElement.textContent,
+                geoLocation: {
+                    lat: position.coords.latitude,
+                    long: position.coords.longitude
+                },
+                telegramLink: `https://t.me/${params.username}`
+            })
+        });
     });
 }
+
 
 coinElement.addEventListener('click', (e) => {
     if (currentTaps >= coinsPerTap * boostMultiplier) {
