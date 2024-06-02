@@ -28,15 +28,17 @@ function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTime
             isActive: false,
             endTime: null,
             type: null
-        }
+        },
+        lastPlayedTime: new Date().toISOString(),
     };
     console.log("Saving user stats:", data); // Debugging
     fetch(`${baseURL}/user-stats/${params.telegramId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-    });
+    }).then(response => response.json())
+        .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
+        .catch(error => console.error("Error saving user stats:", error)); // Debugging
 }
-
 
 export { fetchUserStats, saveUserStats };
