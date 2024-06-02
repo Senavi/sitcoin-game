@@ -392,28 +392,57 @@ setInterval(() => {
 
 setInterval(createFallingStar, 200);
 
+// Helper function to truncate the username
+function truncateUsername(username, maxLength) {
+    if (username.length > maxLength) {
+        return username.substring(0, maxLength) + '...';
+    }
+    return username;
+}
+
+// Helper function to format the coin count
+function formatCoinCount(count) {
+    if (count >= 1000000) {
+        return (count / 1000000).toFixed(1) + 'M';
+    } else if (count >= 1000) {
+        return (count / 1000).toFixed(1) + 'K';
+    }
+    return count.toString();
+}
+
 async function loadLeaderboard() {
     const leaderboardList = document.querySelector('.leaderboard-list');
     leaderboardList.innerHTML = ''; // Clear previous content
 
-    // Fetch leaderboard data from the server
-    const leaderboardData = await fetchLeaderboard();
+    try {
+        const leaderboardData = await fetchLeaderboard(); // Fetch actual leaderboard data
 
-    leaderboardData.forEach((player, index) => {
-        const playerElement = document.createElement('div');
-        playerElement.classList.add('leaderboard-item');
-        playerElement.innerHTML = `
-            <div class="left-col">
-            <p class="rank">${index + 1}</p>
-            <img src="assets/profile.webp" alt="Profile Image">
-            <p class="leader-username">${player.username}</p>
-            </div>
-            <div class="right-col">
-            <span class="score">${player.coinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
-            </div>`;
-        if (index < 3) {
-            playerElement.classList.add('top-three');
-        }
-        leaderboardList.appendChild(playerElement);
-    });
+        leaderboardData.forEach((player, index) => {
+            const playerElement = document.createElement('div');
+            playerElement.classList.add('leaderboard-item');
+
+            // Truncate the username if it's longer than 7 characters
+            const truncatedUsername = truncateUsername(player.username, 7);
+
+            // Format the coin count
+            const formattedCoinCount = formatCoinCount(player.coinCount);
+
+            playerElement.innerHTML = `
+                <div class="left-col">
+                    <p class="rank">${index + 1}</p>
+                    <img src="assets/profile.webp" alt="Profile Image">
+                    <p class="leader-username">${truncatedUsername}</p>
+                </div>
+                <div class="right-col">
+                    <span class="score">${formattedCoinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
+                </div>`;
+
+            if (index < 3) {
+                playerElement.classList.add('top-three');
+            }
+            leaderboardList.appendChild(playerElement);
+        });
+    } catch (error) {
+        console.error("Error loading leaderboard:", error);
+    }
 }
