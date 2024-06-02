@@ -83,26 +83,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             userStatusElement.textContent = stats.status;
             coinCountElement.textContent = coinCount;
             coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
+            if (stats.boosterUsage && stats.boosterUsage.isActive) {
+                startBoost(stats.boosterUsage.endTime - Date.now(), stats.boosterUsage.type, true);
+            }
         }
     }
 });
 
 function saveUserStats(telegramId) {
-    navigator.geolocation.getCurrentPosition((position) => {
-        fetch(`${baseURL}/user-stats/${telegramId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                coinCount,
-                coinsPerTap,
-                status: userStatusElement.textContent,
-                geoLocation: {
-                    lat: position.coords.latitude,
-                    long: position.coords.longitude
-                },
-                telegramLink: `https://t.me/${params.username}`
-            })
-        });
+    fetch(`${baseURL}/user-stats/${telegramId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            coinCount,
+            coinsPerTap,
+            status: userStatusElement.textContent,
+            telegramLink: `https://t.me/${params.username}`,
+            boosterUsage: boostActive ? {
+                isActive: true,
+                endTime: boostEndTimeTimestamp, // endTime is a timestamp
+                type: selectedBoostOption
+            } : {
+                isActive: false,
+                endTime: null,
+                type: null
+            }
+        })
     });
 }
 
