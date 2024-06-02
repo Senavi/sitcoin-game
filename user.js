@@ -18,7 +18,7 @@ async function fetchUserStats() {
     if (params.telegramId) {
         const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
         const stats = await response.json();
-        console.log("Fetched user stats:", stats); // Debugging
+        // console.log("Fetched user stats:", stats); // Debugging
         return stats;
     }
     return null;
@@ -44,7 +44,7 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
         lastPlayedTime: new Date().toISOString(),
         ipAddress // Include the IP address
     };
-    console.log("Saving user stats:", data); // Debugging
+    // console.log("Saving user stats:", data); // Debugging
     fetch(`${baseURL}/user-stats/${params.telegramId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
