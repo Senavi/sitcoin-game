@@ -1,7 +1,7 @@
 // game.js
 
 import { params } from './params.js';
-import { fetchUserStats, saveUserStats } from './user.js';
+import { fetchUserStats, saveUserLink } from './user.js';
 
 let coinCount = 0;
 let coinsPerTap = 1;
@@ -90,7 +90,7 @@ coinElement.addEventListener('click', (e) => {
         addCoins(coinsPerTap * boostMultiplier, x, y);
         createParticles(10);
         // Save stats to the server
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
 });
 
@@ -101,7 +101,7 @@ upgradeButton.addEventListener('click', () => {
         upgradeCost *= 2;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
 });
 
@@ -118,7 +118,7 @@ confirmAutomation.addEventListener('click', () => {
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
         startAutomation(defaultAutomationInterval);
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
     automationModal.style.display = 'none';
 });
@@ -146,7 +146,7 @@ boostOptions.forEach(option => {
 confirmBoost.addEventListener('click', () => {
     if (selectedBoostOption) {
         applyBoost(selectedBoostOption);
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
     boostModal.style.display = 'none';
 });
@@ -202,7 +202,7 @@ function startAutomation(interval) {
     automationIntervalId = setInterval(() => {
         if (isAutomated || boostActive) {
             addCoins(coinsPerTap * boostMultiplier);
-            saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+            saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
         }
     }, interval);
 }
@@ -301,7 +301,7 @@ function applyBoost(optionId) {
         coinCount -= cost;
         coinCountElement.textContent = coinCount;
         startBoost(boostDuration, optionId, false);
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
 }
 
@@ -327,7 +327,7 @@ function startBoost(duration, type, isResuming = false) {
         } else {
             clearInterval(automationIntervalId);
         }
-        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+        saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }, duration);
 
     boostEndTime.textContent = new Date(endTime).toLocaleTimeString();
@@ -339,7 +339,7 @@ function startBoost(duration, type, isResuming = false) {
     }, 1000);
 
     startAutomation(boostInterval);
-    saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
+    saveUserLink(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
 }
 
 function updateBoostButton() {
