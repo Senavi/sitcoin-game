@@ -9,7 +9,7 @@ async function fetchIpAddress() {
         const data = await response.json();
         return data.ip;
     } catch (error) {
-        console.error("Error fetching IP address:", error);
+        // console.error("Error fetching IP address:", error);
         return null;
     }
 }
@@ -19,10 +19,10 @@ async function fetchUserStats() {
         try {
             const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
             const stats = await response.json();
-            console.log("Fetched user stats:", stats); // Debugging log
+            // console.log("Fetched user stats:", stats); // Debugging log
             return stats;
         } catch (error) {
-            console.error("Error fetching user stats:", error);
+            // console.error("Error fetching user stats:", error);
             return null;
         }
     }
@@ -32,11 +32,11 @@ async function fetchUserStats() {
 function loadImage(url, callback, fallback) {
     let img = new Image();
     img.onload = () => {
-        console.log("Image loaded successfully:", url); // Debugging log
+        // console.log("Image loaded successfully:", url); // Debugging log
         callback(url);
     };
     img.onerror = () => {
-        console.error("Failed to load image, falling back to default:", url); // Debugging log
+        // console.error("Failed to load image, falling back to default:", url); // Debugging log
         fallback();
     };
     img.src = url;
@@ -71,9 +71,9 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
             body: JSON.stringify(data)
         });
         const updatedUser = await response.json();
-        console.log("Updated user stats:", updatedUser); // Debugging
+        // console.log("Updated user stats:", updatedUser); // Debugging
     } catch (error) {
-        console.error("Error saving user stats:", error); // Debugging
+        // console.error("Error saving user stats:", error); // Debugging
     }
 }
 
@@ -83,7 +83,7 @@ async function fetchLeaderboard() {
         const leaderboardData = await response.json();
         return leaderboardData;
     } catch (error) {
-        console.error("Error fetching leaderboard data:", error);
+        // console.error("Error fetching leaderboard data:", error);
         return [];
     }
 }
