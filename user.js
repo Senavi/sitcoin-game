@@ -14,7 +14,7 @@ async function fetchUserStats() {
     return null;
 }
 
-function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption, ipAddress) {
+function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption) {
     const data = {
         coinCount,
         coinsPerTap,
@@ -30,7 +30,6 @@ function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTime
             type: null
         },
         lastPlayedTime: new Date().toISOString(),
-        ipAddress
     };
     console.log("Saving user stats:", data); // Debugging
     fetch(`${baseURL}/user-stats/${params.telegramId}`, {
@@ -39,4 +38,7 @@ function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTime
         body: JSON.stringify(data)
     }).then(response => response.json())
         .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
-        .catch(error => console.error("Error saving user stats:", error))
+        .catch(error => console.error("Error saving user stats:", error)); // Debugging
+}
+
+export { fetchUserStats, saveUserStats };
