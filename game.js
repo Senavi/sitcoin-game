@@ -1,5 +1,3 @@
-// game.js
-
 import { params } from './params.js';
 import { fetchUserStats, saveUserStats } from './user.js';
 

@@ -1,8 +1,18 @@
-// user.js
-
 import { params } from './params.js';
 
 const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com"; // Ensure this is correct and without trailing slash
+
+// Function to fetch the IP address
+async function fetchIpAddress() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error("Error fetching IP address:", error);
+        return null;
+    }
+}
 
 async function fetchUserStats() {
     if (params.telegramId) {
@@ -14,7 +24,9 @@ async function fetchUserStats() {
     return null;
 }
 
-function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption) {
+async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption) {
+    const ipAddress = await fetchIpAddress(); // Fetch the IP address
+
     const data = {
         coinCount,
         coinsPerTap,
@@ -30,6 +42,7 @@ function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTime
             type: null
         },
         lastPlayedTime: new Date().toISOString(),
+        ipAddress // Include the IP address
     };
     console.log("Saving user stats:", data); // Debugging
     fetch(`${baseURL}/user-stats/${params.telegramId}`, {
