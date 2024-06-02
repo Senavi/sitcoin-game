@@ -14,7 +14,7 @@ async function fetchUserStats() {
     return null;
 }
 
-function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption) {
+function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption, country) {
     const data = {
         coinCount,
         coinsPerTap,
@@ -30,6 +30,7 @@ function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTime
             type: null
         },
         lastPlayedTime: new Date().toISOString(),
+        country
     };
     console.log("Saving user stats:", data); // Debugging
     fetch(`${baseURL}/user-stats/${params.telegramId}`, {
