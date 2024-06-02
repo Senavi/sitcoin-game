@@ -50,8 +50,8 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     }).then(response => response.json())
-        .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
-        .catch(error => console.error("Error saving user stats:", error)); // Debugging
+        // .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
+        // .catch(error => console.error("Error saving user stats:", error)); // Debugging
 }
 
 export { fetchUserStats, saveUserStats };
