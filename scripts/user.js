@@ -50,8 +50,19 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     }).then(response => response.json())
-        // .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
-        // .catch(error => console.error("Error saving user stats:", error)); // Debugging
+    // .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
+    // .catch(error => console.error("Error saving user stats:", error)); // Debugging
 }
 
-export { fetchUserStats, saveUserStats };
+async function fetchLeaderboard() {
+    try {
+        const response = await fetch(`${baseURL}/leaderboard`);
+        const leaderboardData = await response.json();
+        return leaderboardData;
+    } catch (error) {
+        console.error("Error fetching leaderboard data:", error);
+        return [];
+    }
+}
+
+export { fetchUserStats, saveUserStats, fetchLeaderboard };

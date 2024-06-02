@@ -1,5 +1,5 @@
 import { params } from './params.js';
-import { fetchUserStats, saveUserStats } from './user.js';
+import { fetchUserStats, saveUserStats, fetchLeaderboard } from './user.js';
 
 let coinCount = 0;
 let coinsPerTap = 1;
@@ -166,6 +166,13 @@ leaderboardButton.addEventListener('click', () => {
     leaderboardButton.classList.add('selected');
     homeButton.classList.remove('selected');
     loadLeaderboard();
+});
+
+backToHomeButton.addEventListener('click', () => {
+    homeView.style.display = 'flex';
+    leaderboardView.style.display = 'none';
+    homeButton.classList.add('selected');
+    leaderboardButton.classList.remove('selected');
 });
 
 closeBoostTimer.addEventListener('click', () => {
@@ -390,32 +397,25 @@ setInterval(() => {
 
 setInterval(createFallingStar, 200);
 
-function loadLeaderboard() {
+async function loadLeaderboard() {
     const leaderboardList = document.querySelector('.leaderboard-list');
     leaderboardList.innerHTML = ''; // Clear previous content
 
-    // Simulate loading leaderboard data (this should be replaced with actual data fetching)
-    const leaderboardData = [
-        { rank: 1, username: 'Player1', score: 12345 },
-        { rank: 2, username: 'Player2', score: 11234 },
-        { rank: 3, username: 'Player3', score: 10987 },
-        // Add more dummy data here
-    ];
+    // Fetch leaderboard data from the server
+    const leaderboardData = await fetchLeaderboard();
 
-    leaderboardData.forEach(player => {
+    leaderboardData.forEach((player, index) => {
         const playerElement = document.createElement('div');
         playerElement.classList.add('leaderboard-item');
-        if (player.rank === 1) playerElement.classList.add('top-1');
-        if (player.rank === 2) playerElement.classList.add('top-2');
-        if (player.rank === 3) playerElement.classList.add('top-3');
-
         playerElement.innerHTML = `
-            <div class="rank">${player.rank}</div>
-            <img src="assets/profile.webp" alt="User Image">
-            <div class="username lead-user">${player.username}</div>
-            <div class="score">${player.score} <img src="assets/sitcoin.png" alt="Coin"></div>
+            <span>${index + 1}</span>
+            <img src="assets/profile.webp" alt="Profile Image">
+            <span>${player.username}</span>
+            <span>${player.coinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
         `;
-
+        if (index < 3) {
+            playerElement.classList.add('top-three');
+        }
         leaderboardList.appendChild(playerElement);
     });
 }
