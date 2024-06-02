@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (params.profileImageUrl) {
         loadImage(params.profileImageUrl,
             (url) => document.getElementById("user-image").src = url,
-            () => console.log('Profile image failed to load')
+            () => document.getElementById("user-image").src = 'assets/profile.webp'
         );
     }
     const stats = await fetchUserStats();
@@ -71,12 +71,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+
 function loadImage(url, callback, fallback) {
     let img = new Image();
     img.onload = () => callback(url);
     img.onerror = () => fallback();
     img.src = url;
 }
+
 
 coinElement.addEventListener('click', (e) => {
     if (currentTaps >= coinsPerTap * boostMultiplier) {
@@ -427,21 +429,25 @@ async function loadLeaderboard() {
             // Format the coin count
             const formattedCoinCount = formatCoinCount(player.coinCount);
 
+            // Use the player's profile image URL or a fallback
+            const profileImageUrl = player.profileImageUrl || 'assets/profile.webp';
+
             playerElement.innerHTML = `
-                <div class="left-col">
-                    <p class="rank">${index + 1}</p>
-                    <img src="assets/profile.webp" alt="Profile Image">
-                    <p class="leader-username">${truncatedUsername}</p>
-                </div>
-                <div class="right-col">
-                    <span class="score">${formattedCoinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
-                </div>`;
+        <div class="left-col">
+            <p class="rank">${index + 1}</p>
+            <img src="${profileImageUrl}" alt="Profile Image" onerror="this.onerror=null;this.src='assets/profile.webp';">
+            <p class="leader-username">${truncatedUsername}</p>
+        </div>
+        <div class="right-col">
+            <span class="score">${formattedCoinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
+        </div>`;
 
             if (index < 3) {
                 playerElement.classList.add('top-three');
             }
             leaderboardList.appendChild(playerElement);
         });
+
     } catch (error) {
         console.error("Error loading leaderboard:", error);
     }
