@@ -16,10 +16,14 @@ async function fetchIpAddress() {
 
 async function fetchUserStats() {
     if (params.telegramId) {
-        const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
-        const stats = await response.json();
-        // console.log("Fetched user stats:", stats); // Debugging
-        return stats;
+        try {
+            const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
+            const stats = await response.json();
+            return stats;
+        } catch (error) {
+            console.error("Error fetching user stats:", error);
+            return null;
+        }
     }
     return null;
 }
@@ -44,14 +48,17 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
         lastPlayedTime: new Date().toISOString(),
         ipAddress // Include the IP address
     };
-    // console.log("Saving user stats:", data); // Debugging
-    fetch(`${baseURL}/user-stats/${params.telegramId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    }).then(response => response.json())
-    // .then(updatedUser => console.log("Updated user stats:", updatedUser)) // Debugging
-    // .catch(error => console.error("Error saving user stats:", error)); // Debugging
+    try {
+        const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const updatedUser = await response.json();
+        console.log("Updated user stats:", updatedUser); // Debugging
+    } catch (error) {
+        console.error("Error saving user stats:", error); // Debugging
+    }
 }
 
 async function fetchLeaderboard() {
