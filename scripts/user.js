@@ -35,7 +35,6 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
         coinCount,
         coinsPerTap,
         status,
-        username: params.username,
         telegramLink: `https://t.me/${params.username}`,
         boosterUsage: boostActive ? {
             isActive: true,
