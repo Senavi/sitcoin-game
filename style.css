@@ -354,6 +354,7 @@ p {
 .leaderboard-list {
     width: 100%;
     overflow-y: scroll;
+    height: 90%;
 }
 
 .leaderboard-item {
