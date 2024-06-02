@@ -17,7 +17,7 @@ async function fetchIpAddress() {
 async function fetchUserStats() {
     if (params.telegramId) {
         try {
-            const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
+            const response = await fetch(`${baseURL}/user-stats/${params.telegramId}?username=${params.username}`);
             const stats = await response.json();
             return stats;
         } catch (error) {
@@ -46,7 +46,8 @@ async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostE
             type: null
         },
         lastPlayedTime: new Date().toISOString(),
-        ipAddress // Include the IP address
+        ipAddress, // Include the IP address
+        username: params.username // Include the username
     };
     try {
         const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`, {
