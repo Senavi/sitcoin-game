@@ -14,7 +14,7 @@ async function fetchUserStats() {
     return null;
 }
 
-function saveUserLink() {
+function saveUserStats() {
     const data = {
         telegramLink: `https://t.me/${params.username}`,
     };
@@ -29,4 +29,4 @@ function saveUserLink() {
 }
 
 
-export { fetchUserStats, saveUserLink };
+export { fetchUserStats, saveUserStats };
