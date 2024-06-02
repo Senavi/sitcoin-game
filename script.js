@@ -13,6 +13,7 @@ let boostActive = false;
 let maxTaps = 2500;
 let currentTaps = maxTaps;
 let tapRestoreRate = 5; // 5 taps per second
+let boostEndTimeTimestamp;
 
 const coinCountElement = document.getElementById('coin-count');
 const coinElement = document.getElementById('coin');
@@ -42,25 +43,10 @@ let selectedBoostOption = null;
 let boostTimeout;
 let boostEndTimeInterval;
 
-// Example code to read query parameters in your game (e.g., script.js)
-function getQueryParams() {
-    let params = {};
-    window.location.search.substring(1).split("&").forEach(pair => {
-        let [key, value] = pair.split("=");
-        params[key] = value;
-    });
-    return params;
-}
-
-function loadImage(url, callback, fallback) {
-    let img = new Image();
-    img.onload = () => callback(url);
-    img.onerror = () => fallback();
-    img.src = url;
-}
+// Define params globally
+let params = getQueryParams();
 
 document.addEventListener("DOMContentLoaded", async () => {
-    let params = getQueryParams();
     if (params.username) {
         let username = params.username;
         if (username.length > 7) {
@@ -90,8 +76,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-function saveUserStats(telegramId) {
-    fetch(`${baseURL}/user-stats/${telegramId}`, {
+function saveUserStats(params) {
+    fetch(`${baseURL}/user-stats/${params.telegramId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -112,7 +98,6 @@ function saveUserStats(telegramId) {
     });
 }
 
-
 coinElement.addEventListener('click', (e) => {
     if (currentTaps >= coinsPerTap * boostMultiplier) {
         currentTaps -= coinsPerTap * boostMultiplier;
@@ -123,8 +108,7 @@ coinElement.addEventListener('click', (e) => {
         addCoins(coinsPerTap * boostMultiplier, x, y);
         createParticles(10);
         // Save stats to the server
-        const params = getQueryParams();
-        saveUserStats(params.telegramId);
+        saveUserStats(params);
     }
 });
 
@@ -135,8 +119,7 @@ upgradeButton.addEventListener('click', () => {
         upgradeCost *= 2;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-        const params = getQueryParams();
-        saveUserStats(params.telegramId);
+        saveUserStats(params);
     }
 });
 
@@ -153,8 +136,7 @@ confirmAutomation.addEventListener('click', () => {
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
         startAutomation(defaultAutomationInterval);
-        const params = getQueryParams();
-        saveUserStats(params.telegramId);
+        saveUserStats(params);
     }
     automationModal.style.display = 'none';
 });
@@ -182,8 +164,7 @@ boostOptions.forEach(option => {
 confirmBoost.addEventListener('click', () => {
     if (selectedBoostOption) {
         applyBoost(selectedBoostOption);
-        const params = getQueryParams();
-        saveUserStats(params.telegramId);
+        saveUserStats(params);
     }
     boostModal.style.display = 'none';
 });
@@ -239,8 +220,7 @@ function startAutomation(interval) {
     automationIntervalId = setInterval(() => {
         if (isAutomated || boostActive) {
             addCoins(coinsPerTap * boostMultiplier);
-            const params = getQueryParams();
-            saveUserStats(params.telegramId);
+            saveUserStats(params);
         }
     }, interval);
 }
@@ -338,17 +318,21 @@ function applyBoost(optionId) {
     if (coinCount >= cost) {
         coinCount -= cost;
         coinCountElement.textContent = coinCount;
-        startBoost(boostDuration, nextAvailable);
-        const params = getQueryParams();
-        saveUserStats(params.telegramId);
+        startBoost(boostDuration, optionId, false);
+        saveUserStats(params);
     }
 }
 
-function startBoost(duration, nextAvailable) {
+function startBoost(duration, type, isResuming = false) {
     boostButton.disabled = true;
-    const endTime = Date.now() + duration;
-    const nextBoostTime = Date.now() + nextAvailable;
+    const endTime = isResuming ? duration : Date.now() + duration;
+    boostEndTimeTimestamp = endTime;
     boostActive = true;
+
+    if (!isResuming) {
+        // If not resuming, clear any previous timeout
+        clearTimeout(boostTimeout);
+    }
 
     boostTimeout = setTimeout(() => {
         boostMultiplier = 1;
@@ -361,10 +345,10 @@ function startBoost(duration, nextAvailable) {
         } else {
             clearInterval(automationIntervalId);
         }
+        saveUserStats(params);
     }, duration);
 
     boostEndTime.textContent = new Date(endTime).toLocaleTimeString();
-    nextFreeBoost.textContent = new Date(nextBoostTime).toLocaleTimeString();
     boostTimerModal.style.display = 'flex';
 
     updateBoostButtonText(endTime);
@@ -373,6 +357,7 @@ function startBoost(duration, nextAvailable) {
     }, 1000);
 
     startAutomation(boostInterval);
+    saveUserStats(params);
 }
 
 function updateBoostButton() {
