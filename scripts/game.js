@@ -168,12 +168,6 @@ leaderboardButton.addEventListener('click', () => {
     loadLeaderboard();
 });
 
-backToHomeButton.addEventListener('click', () => {
-    homeView.style.display = 'flex';
-    leaderboardView.style.display = 'none';
-    homeButton.classList.add('selected');
-    leaderboardButton.classList.remove('selected');
-});
 
 closeBoostTimer.addEventListener('click', () => {
     boostTimerModal.style.display = 'none';
