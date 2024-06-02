@@ -169,6 +169,7 @@ leaderboardButton.addEventListener('click', () => {
 });
 
 
+
 closeBoostTimer.addEventListener('click', () => {
     boostTimerModal.style.display = 'none';
 });
