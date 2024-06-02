@@ -38,4 +38,5 @@ function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTime
     });
 }
 
+
 export { fetchUserStats, saveUserStats };
