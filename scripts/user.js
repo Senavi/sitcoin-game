@@ -17,8 +17,9 @@ async function fetchIpAddress() {
 async function fetchUserStats() {
     if (params.telegramId) {
         try {
-            const response = await fetch(`${baseURL}/user-stats/${params.telegramId}?username=${params.username}`);
+            const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
             const stats = await response.json();
+            console.log("Fetched user stats:", stats); // Debugging log
             return stats;
         } catch (error) {
             console.error("Error fetching user stats:", error);
@@ -27,6 +28,20 @@ async function fetchUserStats() {
     }
     return null;
 }
+
+function loadImage(url, callback, fallback) {
+    let img = new Image();
+    img.onload = () => {
+        console.log("Image loaded successfully:", url); // Debugging log
+        callback(url);
+    };
+    img.onerror = () => {
+        console.error("Failed to load image, falling back to default:", url); // Debugging log
+        fallback();
+    };
+    img.src = url;
+}
+
 
 async function saveUserStats(coinCount, coinsPerTap, status, boostActive, boostEndTimeTimestamp, selectedBoostOption) {
     const ipAddress = await fetchIpAddress(); // Fetch the IP address

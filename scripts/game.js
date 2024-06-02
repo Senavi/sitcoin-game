@@ -52,12 +52,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         document.getElementById("username").innerText = username;
     }
-    if (params.profileImageUrl) {
-        loadImage(params.profileImageUrl,
-            (url) => document.getElementById("user-image").src = url,
-            () => document.getElementById("user-image").src = 'assets/profile.webp'
-        );
-    }
     const stats = await fetchUserStats();
     if (stats) {
         coinCount = stats.coinCount;
@@ -65,11 +59,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         userStatusElement.textContent = stats.status;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
+        if (stats.profileImageUrl) {
+            console.log("Profile image URL:", stats.profileImageUrl); // Debugging log
+            loadImage(
+                stats.profileImageUrl,
+                (url) => document.getElementById("user-image").src = url,
+                () => document.getElementById("user-image").src = 'assets/profile.webp'
+            );
+        } else {
+            console.log("No profile image URL found, using default.");
+            document.getElementById("user-image").src = 'assets/profile.webp';
+        }
         if (stats.boosterUsage && stats.boosterUsage.isActive) {
             startBoost(stats.boosterUsage.endTime - Date.now(), stats.boosterUsage.type, true);
         }
     }
 });
+
 
 
 function loadImage(url, callback, fallback) {
@@ -416,39 +422,33 @@ async function loadLeaderboard() {
     const leaderboardList = document.querySelector('.leaderboard-list');
     leaderboardList.innerHTML = ''; // Clear previous content
 
-    try {
-        const leaderboardData = await fetchLeaderboard(); // Fetch actual leaderboard data
-
+    fetchLeaderboard().then(leaderboardData => {
         leaderboardData.forEach((player, index) => {
             const playerElement = document.createElement('div');
             playerElement.classList.add('leaderboard-item');
 
-            // Truncate the username if it's longer than 7 characters
             const truncatedUsername = truncateUsername(player.username, 7);
-
-            // Format the coin count
             const formattedCoinCount = formatCoinCount(player.coinCount);
-
-            // Use the player's profile image URL or a fallback
             const profileImageUrl = player.profileImageUrl || 'assets/profile.webp';
 
+            console.log(`Player ${index + 1} profile image URL: ${profileImageUrl}`); // Debugging log
+
             playerElement.innerHTML = `
-        <div class="left-col">
-            <p class="rank">${index + 1}</p>
-            <img src="${profileImageUrl}" alt="Profile Image" onerror="this.onerror=null;this.src='assets/profile.webp';">
-            <p class="leader-username">${truncatedUsername}</p>
-        </div>
-        <div class="right-col">
-            <span class="score">${formattedCoinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
-        </div>`;
+                <div class="left-col">
+                    <p class="rank">${index + 1}</p>
+                    <img src="${profileImageUrl}" alt="Profile Image" onerror="this.onerror=null;this.src='assets/profile.webp';">
+                    <p class="leader-username">${truncatedUsername}</p>
+                </div>
+                <div class="right-col">
+                    <span class="score">${formattedCoinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
+                </div>`;
 
             if (index < 3) {
                 playerElement.classList.add('top-three');
             }
             leaderboardList.appendChild(playerElement);
         });
-
-    } catch (error) {
+    }).catch(error => {
         console.error("Error loading leaderboard:", error);
-    }
+    });
 }
