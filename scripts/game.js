@@ -1,7 +1,12 @@
 import { params } from './params.js';
 import { fetchUserStats, saveUserStats, fetchLeaderboard } from './user.js';
 
+let coinCount = 0;
+let coinsPerTap = 1;
+let upgradeCost = 2;
 let automateCost = 1000;
+let isAutomated = false;
+let boostMultiplier = 1;
 let boostInterval = 1000;
 let defaultAutomationInterval = 1000; // Default interval for automation
 let automationIntervalId;
@@ -9,13 +14,11 @@ let boostActive = false;
 let maxTaps = 2500;
 let currentTaps = maxTaps;
 let tapRestoreRate = 5; // 5 taps per second
-let coinCount = 0;
-let coinsPerTap = 1;
-let upgradeCost = 2;
-let isAutomated = false;
-let boostMultiplier = 1;
 let boostEndTimeTimestamp;
-let autoclickerEndTimeTimestamp;
+
+
+
+
 
 const coinCountElement = document.getElementById('coin-count');
 const coinElement = document.getElementById('coin');
@@ -53,12 +56,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         document.getElementById("username").innerText = username;
     }
-    if (params.profileImageUrl) {
-        loadImage(params.profileImageUrl,
-            (url) => document.getElementById("user-image").src = url,
-            () => console.log('Profile image failed to load')
-        );
-    }
     const stats = await fetchUserStats();
     if (stats) {
         coinCount = stats.coinCount;
@@ -66,18 +63,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         userStatusElement.textContent = stats.status;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-
+        if (stats.profileImageUrl) {
+            console.log("Profile image URL:", stats.profileImageUrl); // Debugging log
+            loadImage(
+                stats.profileImageUrl,
+                (url) => document.getElementById("user-image").src = url,
+                () => document.getElementById("user-image").src = 'assets/profile.webp'
+            );
+        } else {
+            console.log("No profile image URL found, using default.");
+            document.getElementById("user-image").src = 'assets/profile.webp';
+        }
         if (stats.boosterUsage && stats.boosterUsage.isActive) {
             startBoost(stats.boosterUsage.endTime - Date.now(), stats.boosterUsage.type, true);
         }
-
-        if (stats.autoclickerEndTime) {
-            if (new Date(stats.autoclickerEndTime) > Date.now()) {
-                startAutomation(stats.autoclickerEndTime - Date.now());
-            }
-        }
     }
 });
+
+
 
 function loadImage(url, callback, fallback) {
     let img = new Image();
@@ -86,10 +89,18 @@ function loadImage(url, callback, fallback) {
     img.src = url;
 }
 
+
 coinElement.addEventListener('click', (e) => {
-    if (isAutomated || boostActive) {
-        addCoins(coinsPerTap * boostMultiplier, e.clientX, e.clientY);
-        saveUserStats();
+    if (currentTaps >= coinsPerTap * boostMultiplier) {
+        currentTaps -= coinsPerTap * boostMultiplier;
+        updateTapCount();
+        const rect = coinElement.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        addCoins(coinsPerTap * boostMultiplier, x, y);
+        createParticles(10);
+        // Save stats to the server
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
 });
 
@@ -100,7 +111,7 @@ upgradeButton.addEventListener('click', () => {
         upgradeCost *= 2;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-        saveUserStats();
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
 });
 
@@ -116,8 +127,8 @@ confirmAutomation.addEventListener('click', () => {
         automateButton.style.display = 'none';
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-        startAutomation(3 * 60 * 60 * 1000); // 3 hours
-        saveUserStats();
+        startAutomation(defaultAutomationInterval);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
     document.getElementById('automation-modal').style.display = 'none';
 });
@@ -145,7 +156,7 @@ boostOptions.forEach(option => {
 confirmBoost.addEventListener('click', () => {
     if (selectedBoostOption) {
         applyBoost(selectedBoostOption);
-        saveUserStats();
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
     boostModal.style.display = 'none';
 });
@@ -161,42 +172,24 @@ homeButton.addEventListener('click', () => {
     leaderboardButton.classList.remove('selected');
 });
 
-leaderboardButton.addEventListener('click', async () => {
+leaderboardButton.addEventListener('click', () => {
     homeView.style.display = 'none';
     leaderboardView.style.display = 'flex';
     leaderboardButton.classList.add('selected');
     homeButton.classList.remove('selected');
-    const leaderboardData = await fetchLeaderboard();
-    const leaderboardList = document.querySelector('.leaderboard-list');
-    leaderboardList.innerHTML = ''; // Clear previous content
-
-    leaderboardData.forEach((player, index) => {
-        const playerElement = document.createElement('div');
-        playerElement.classList.add('leaderboard-item');
-        playerElement.innerHTML = `
-            <div class="left-col">
-                <p class="rank">${index + 1}</p>
-                <img src="${player.profileImageUrl || 'assets/default_profile.png'}" alt="Profile Image">
-                <p class="leader-username">${player.username.length > 7 ? player.username.substring(0, 7) + '...' : player.username}</p>
-            </div>
-            <div class="right-col">
-                <span class="score">${formatCoinCount(player.coinCount)} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
-            </div>`;
-        if (index < 3) {
-            playerElement.classList.add('top-three');
-        }
-        leaderboardList.appendChild(playerElement);
-    });
+    loadLeaderboard();
 });
+
+
 
 closeBoostTimer.addEventListener('click', () => {
     boostTimerModal.style.display = 'none';
 });
 
 function addCoins(amount, x = null, y = null) {
+    animateCoinCount(coinCount, coinCount + amount);
     coinCount += amount;
     updateUserStatus();
-    coinCountElement.textContent = coinCount;
 
     if (x !== null && y !== null) {
         const fadeText = document.createElement('div');
@@ -212,22 +205,16 @@ function addCoins(amount, x = null, y = null) {
     }
 }
 
-function startAutomation(duration) {
-    if (isAutomated) {
-        return;
+function startAutomation(interval) {
+    if (automationIntervalId) {
+        clearInterval(automationIntervalId);
     }
-
-    isAutomated = true;
-    const interval = setInterval(() => {
-        if (isAutomated) {
+    automationIntervalId = setInterval(() => {
+        if (isAutomated || boostActive) {
             addCoins(coinsPerTap * boostMultiplier);
+            saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
         }
-    }, 1000);
-
-    setTimeout(() => {
-        isAutomated = false;
-        clearInterval(interval);
-    }, duration);
+    }, interval);
 }
 
 function updateUserStatus() {
@@ -324,7 +311,7 @@ function applyBoost(optionId) {
         coinCount -= cost;
         coinCountElement.textContent = coinCount;
         startBoost(boostDuration, optionId, false);
-        saveUserStats();
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }
 }
 
@@ -350,7 +337,7 @@ function startBoost(duration, type, isResuming = false) {
         } else {
             clearInterval(automationIntervalId);
         }
-        saveUserStats();
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
     }, duration);
 
     boostEndTime.textContent = new Date(endTime).toLocaleTimeString();
@@ -362,7 +349,7 @@ function startBoost(duration, type, isResuming = false) {
     }, 1000);
 
     startAutomation(boostInterval);
-    saveUserStats();
+    saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp);
 }
 
 function updateBoostButton() {
@@ -404,14 +391,8 @@ function updateBoostOptions() {
     });
 }
 
-function formatCoinCount(count) {
-    if (count >= 1000000) {
-        return `${(count / 1000000).toFixed(1)}M`;
-    } else if (count >= 1000) {
-        return `${(count / 1000).toFixed(1)}K`;
-    } else {
-        return count.toString();
-    }
+function updateTapCount() {
+    tapCountElement.textContent = `${currentTaps}/${maxTaps}`;
 }
 
 setInterval(() => {
@@ -423,4 +404,55 @@ setInterval(() => {
 
 setInterval(createFallingStar, 200);
 
-export { fetchUserStats, saveUserStats, fetchLeaderboard };
+// Helper function to truncate the username
+function truncateUsername(username, maxLength) {
+    if (username.length > maxLength) {
+        return username.substring(0, maxLength) + '...';
+    }
+    return username;
+}
+
+// Helper function to format the coin count
+function formatCoinCount(count) {
+    if (count >= 1000000) {
+        return (count / 1000000).toFixed(1) + 'M';
+    } else if (count >= 1000) {
+        return (count / 1000).toFixed(1) + 'K';
+    }
+    return count.toString();
+}
+
+async function loadLeaderboard() {
+    const leaderboardList = document.querySelector('.leaderboard-list');
+    leaderboardList.innerHTML = ''; // Clear previous content
+
+    fetchLeaderboard().then(leaderboardData => {
+        leaderboardData.forEach((player, index) => {
+            const playerElement = document.createElement('div');
+            playerElement.classList.add('leaderboard-item');
+
+            const truncatedUsername = truncateUsername(player.username, 7);
+            const formattedCoinCount = formatCoinCount(player.coinCount);
+            const profileImageUrl = player.profileImageUrl || 'assets/profile.webp';
+
+            console.log(`Player ${index + 1} profile image URL: ${profileImageUrl}`); // Debugging log
+
+            playerElement.innerHTML = `
+                <div class="left-col">
+                    <p class="rank">${index + 1}</p>
+                    <img src="${profileImageUrl}" alt="Profile Image" onerror="this.onerror=null;this.src='assets/profile.webp';">
+                    <p class="leader-username">${truncatedUsername}</p>
+                </div>
+                <div class="right-col">
+                    <span class="score">${formattedCoinCount} <img src="assets/sitcoin.png" alt="Coin Icon" class="coin-icon"></span>
+                </div>`;
+
+            if (index < 3) {
+                playerElement.classList.add('top-three');
+            }
+            leaderboardList.appendChild(playerElement);
+        });
+    }).catch(error => {
+        console.error("Error loading leaderboard:", error);
+    });
+}
