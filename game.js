@@ -1,4 +1,7 @@
-const baseURL = "https://sitcoincryptogame-ed48f5fed350.herokuapp.com"; // Ensure this is correct and without trailing slash
+// game.js
+
+import { params } from './params.js';
+import { fetchUserStats, saveUserStats } from './user.js';
 
 let coinCount = 0;
 let coinsPerTap = 1;
@@ -43,9 +46,6 @@ let selectedBoostOption = null;
 let boostTimeout;
 let boostEndTimeInterval;
 
-// Define params globally
-let params = getQueryParams();
-
 document.addEventListener("DOMContentLoaded", async () => {
     if (params.username) {
         let username = params.username;
@@ -60,42 +60,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             () => console.log('Profile image failed to load')
         );
     }
-    if (params.telegramId) {
-        const response = await fetch(`${baseURL}/user-stats/${params.telegramId}`);
-        const stats = await response.json();
-        if (stats) {
-            coinCount = stats.coinCount;
-            coinsPerTap = stats.coinsPerTap;
-            userStatusElement.textContent = stats.status;
-            coinCountElement.textContent = coinCount;
-            coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-            if (stats.boosterUsage && stats.boosterUsage.isActive) {
-                startBoost(stats.boosterUsage.endTime - Date.now(), stats.boosterUsage.type, true);
-            }
+    const stats = await fetchUserStats();
+    if (stats) {
+        coinCount = stats.coinCount;
+        coinsPerTap = stats.coinsPerTap;
+        userStatusElement.textContent = stats.status;
+        coinCountElement.textContent = coinCount;
+        coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
+        if (stats.boosterUsage && stats.boosterUsage.isActive) {
+            startBoost(stats.boosterUsage.endTime - Date.now(), stats.boosterUsage.type, true);
         }
     }
 });
 
-function saveUserStats(params) {
-    fetch(`${baseURL}/user-stats/${params.telegramId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            coinCount,
-            coinsPerTap,
-            status: userStatusElement.textContent,
-            telegramLink: `https://t.me/${params.username}`,
-            boosterUsage: boostActive ? {
-                isActive: true,
-                endTime: boostEndTimeTimestamp, // endTime is a timestamp
-                type: selectedBoostOption
-            } : {
-                isActive: false,
-                endTime: null,
-                type: null
-            }
-        })
-    });
+function loadImage(url, callback, fallback) {
+    let img = new Image();
+    img.onload = () => callback(url);
+    img.onerror = () => fallback();
+    img.src = url;
 }
 
 coinElement.addEventListener('click', (e) => {
@@ -108,7 +90,7 @@ coinElement.addEventListener('click', (e) => {
         addCoins(coinsPerTap * boostMultiplier, x, y);
         createParticles(10);
         // Save stats to the server
-        saveUserStats(params);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
 });
 
@@ -119,7 +101,7 @@ upgradeButton.addEventListener('click', () => {
         upgradeCost *= 2;
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
-        saveUserStats(params);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
 });
 
@@ -136,7 +118,7 @@ confirmAutomation.addEventListener('click', () => {
         coinCountElement.textContent = coinCount;
         coinsPerTapElement.textContent = `${coinsPerTap} per tap`;
         startAutomation(defaultAutomationInterval);
-        saveUserStats(params);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
     automationModal.style.display = 'none';
 });
@@ -164,7 +146,7 @@ boostOptions.forEach(option => {
 confirmBoost.addEventListener('click', () => {
     if (selectedBoostOption) {
         applyBoost(selectedBoostOption);
-        saveUserStats(params);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
     boostModal.style.display = 'none';
 });
@@ -220,7 +202,7 @@ function startAutomation(interval) {
     automationIntervalId = setInterval(() => {
         if (isAutomated || boostActive) {
             addCoins(coinsPerTap * boostMultiplier);
-            saveUserStats(params);
+            saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
         }
     }, interval);
 }
@@ -319,7 +301,7 @@ function applyBoost(optionId) {
         coinCount -= cost;
         coinCountElement.textContent = coinCount;
         startBoost(boostDuration, optionId, false);
-        saveUserStats(params);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }
 }
 
@@ -345,7 +327,7 @@ function startBoost(duration, type, isResuming = false) {
         } else {
             clearInterval(automationIntervalId);
         }
-        saveUserStats(params);
+        saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
     }, duration);
 
     boostEndTime.textContent = new Date(endTime).toLocaleTimeString();
@@ -357,7 +339,7 @@ function startBoost(duration, type, isResuming = false) {
     }, 1000);
 
     startAutomation(boostInterval);
-    saveUserStats(params);
+    saveUserStats(coinCount, coinsPerTap, userStatusElement.textContent, boostActive, boostEndTimeTimestamp, selectedBoostOption);
 }
 
 function updateBoostButton() {
